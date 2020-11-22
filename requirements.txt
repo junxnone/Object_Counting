@@ -1,0 +1,4 @@
+opencv-python==4.4.0.46
+scikit-image==0.17.2
+torch==1.7.0
+tqdm==4.53.0

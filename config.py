@@ -57,7 +57,7 @@ class Config:
     # How far apart should two centroids minimally be. (values could be: 3, 7, 11, 15, 17, etc.)
     # Increase value to get less detection close together.
     # Decrease value to improve detection which are very close together.
-    nm_size = 3
+    nm_size = 7
 
     # How many votes constitutes a centroid.
     # Increase value to increase precision and decrease recall (less detections)
