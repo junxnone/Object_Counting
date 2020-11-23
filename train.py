@@ -17,11 +17,15 @@
 import os
 import copy
 import numpy as np
+import time
 import torch.utils.data
 import torch.optim as optim
 from tqdm import tqdm
+from torch.utils.tensorboard import SummaryWriter
 from config import Config
 from centroidnet import CentroidNet, CentroidNetDataset, CentroidLoss, decode
+
+tbw = SummaryWriter(f'tflog/{time.strftime("%Y_%m_%d_%H_%M_%S")}')
 
 
 def create_data_loader(training_file, validation_file, crop, max_dist, repeat,
@@ -144,7 +148,7 @@ def train(training_set, validation_set, model, loss, epochs, batch_size,
             optimizer.step()
             training_loss += ls.item()
             idx += 1
-
+        tbw.add_scalar("Loss/Train", ls.item(), epoch)
         scheduler.step(epoch)
 
         # Update progress bar
@@ -157,6 +161,8 @@ def train(training_set, validation_set, model, loss, epochs, batch_size,
         validation_loss = validate(validation_loss, epoch,
                                    validation_set_loader, model, loss,
                                    validation_interval)
+        tbw.add_scalar("Loss/Val", validation_loss, epoch)
+        tbw.flush()
         if validation_loss < best_loss:
             print(f"Update model with loss {validation_loss}")
             best_loss = validation_loss
@@ -259,6 +265,8 @@ if __name__ == '__main__':
         # Create network and load snapshots
         model = create_centroidnet(num_channels=Config.num_channels,
                                    num_classes=Config.num_classes)
+        fake_img = torch.randn(1, 3, 24, 24)
+        tbw.add_graph(model, fake_img)
         model = train(training_set,
                       validation_set,
                       model,
