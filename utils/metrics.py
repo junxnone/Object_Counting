@@ -1,9 +1,10 @@
+import os
 import pandas as pd
 import numpy as np
 
 
 class counting_metrics():
-    def __init__(self, class_num, labels=None):
+    def __init__(self, class_num, labels=None, outpath='out'):
         self.class_num = class_num
 
         if labels is not None:
@@ -20,6 +21,7 @@ class counting_metrics():
         self.pd_df = pd.DataFrame(columns=cols)
         self.gt_df = pd.DataFrame(columns=cols)
         self.metrics = pd.DataFrame(columns=self.labels)
+        self.outpath = outpath
 
     def add_result(self, result, gt):
         self.pd_df = self.pd_df.append(result, ignore_index=True)
@@ -41,8 +43,9 @@ class counting_metrics():
             self.metrics.loc['mae', ci] = c_mae
             self.metrics.loc['mse', ci] = c_mse
             self.metrics.loc['rmse', ci] = np.sqrt(self.metrics.loc['mse', ci])
-        self.metrics.to_csv('metrics_result.csv')
-
+        self.metrics.to_csv(os.path.join(self.outpath, 'metrics_result.csv'))
+        self.pd_df.to_csv(os.path.join(self.outpath, 'predict.csv'))
+        self.gt_df.to_csv(os.path.join(self.outpath, 'groundtruth.csv'))
 
 if __name__ == '__main__':
 
